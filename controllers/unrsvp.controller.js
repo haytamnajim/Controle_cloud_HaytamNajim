@@ -1,15 +1,15 @@
 const Event = require('../models/event.model');
 const jwt = require('jsonwebtoken');
 
-const rsvpEvent = async (req, res) => {
+const unRsvpEvent = async (req, res) => {
     try {
-        
+        // Verify token
         const token = req.headers.authorization.split(' ')[1];
         if (!token) {
             return res.status(401).json({ message: 'No token provided' });
         }
 
-        jwt.verify(token, 'secretkey', async (err, decoded) => { 
+        jwt.verify(token, 'secretkey', async (err, decoded) => {
             if (err) {
                 return res.status(403).json({ message: 'Failed to authenticate token' });
             }
@@ -23,19 +23,19 @@ const rsvpEvent = async (req, res) => {
             }
 
            
-            if (event.attendees.includes(userId)) {
-                return res.status(400).json({ message: 'User is already attending this event' });
+            if (!event.attendees.includes(userId)) {
+                return res.status(400).json({ message: 'User is not attending this event' });
             }
 
             
-            event.attendees.push(userId);
+            event.attendees = event.attendees.filter(attendee => attendee.toString() !== userId);
             await event.save();
 
-            res.status(200).json({ message: 'User RSVP successfully' });
+            res.status(200).json({ message: 'User un-RSVPed successfully' });
         });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 };
 
-module.exports = { rsvpEvent };
+module.exports = { unRsvpEvent };
