@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth.routes');
+const eventRoutes = require('./routes/event.routes');
 
 const app = express();
 const port = 3000;
@@ -10,7 +11,7 @@ app.use(express.json());
 
 
 app.use('/api/auth', authRoutes);
-
+app.use('/api/events', eventRoutes);
 
 mongoose.connect('mongodb://localhost:27017/testdb', {
     useNewUrlParser: true,
