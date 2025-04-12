@@ -5,20 +5,20 @@ const createEvent = async (req, res) => {
     try {
         const { title, description, date, location } = req.body;
 
-        // Verify token
+
         const token = req.headers.authorization.split(' ')[1];
         if (!token) {
             return res.status(401).json({ message: 'No token provided' });
         }
 
-        jwt.verify(token, 'secretkey', async (err, decoded) => { // Replace 'secretkey' with your actual secret key
+        jwt.verify(token, 'secretkey', async (err, decoded) => { 
             if (err) {
                 return res.status(403).json({ message: 'Failed to authenticate token' });
             }
 
             const userId = decoded.id;
 
-            // Create new event
+           
             const newEvent = new Event({
                 title,
                 description,
@@ -27,7 +27,7 @@ const createEvent = async (req, res) => {
                 organizer: userId
             });
 
-            // Save event
+            // enregistrer event
             const event = await newEvent.save();
             res.status(201).json({ message: 'Event created successfully', event });
         });
@@ -38,4 +38,25 @@ const createEvent = async (req, res) => {
     }
 };
 
-module.exports = { createEvent };
+const getAllEvents = async (req, res) => {
+    try {
+        const events = await Event.find();
+        res.status(200).json(events);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+const getEventById = async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (!event) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+        res.status(200).json(event);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+module.exports = { createEvent, getAllEvents, getEventById };
